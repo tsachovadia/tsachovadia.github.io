@@ -1,1 +1,525 @@
-Hello world
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Property Portfolio Analysis | Cleveland, OH</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Chosen Palette: Warm Neutrals with Subtle Accents -->
+    <!-- Application Structure Plan: A dashboard-style, top-down narrative flow is designed for a financial audience. It starts with a high-level dashboard of key portfolio totals, then flows to Market Context (visualized with charts), a streamlined Valuation Methodology flowchart, an analysis of Portfolio Composition & Growth (charts), and concludes with a detailed, Interactive Property Explorer. This structure allows a user to go from macro overview to micro details on demand, which is the most effective user flow for financial analysis. -->
+    <!-- Visualization & Content Choices: Report Info: Executive Summary Totals -> Goal: Inform -> Viz/Method: Large stat KPI cards (HTML/Tailwind) -> Interaction: None -> Justification: Immediate, high-impact overview. Report Info: Market data -> Goal: Compare/Inform -> Viz/Method: Bar/Donut charts (Chart.js/Canvas) -> Interaction: Hover -> Justification: Clear, digestible visuals for market health. Report Info: SCA process -> Goal: Organize -> Viz/Method: Flowchart (HTML/CSS) -> Interaction: None -> Justification: Simplifies complex text. Report Info: Portfolio composition/growth -> Goal: Compare/Change -> Viz/Method: Bar/Stacked Bar charts (Chart.js/Canvas) -> Interaction: Hover -> Justification: Key insights into portfolio structure and future value. Report Info: Individual property details -> Goal: Organize/Explore -> Viz/Method: Interactive HTML Table with JS-powered modal for drill-down -> Interaction: Click row -> Justification: Core interactive element for deep exploration without UI clutter. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 320px;
+            }
+        }
+        .kpi-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+            text-align: center;
+            border-bottom: 4px solid #4338ca;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .kpi-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #1e293b;
+            line-height: 1.1;
+        }
+        .kpi-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #64748b;
+            margin-top: 0.5rem;
+        }
+        .section-card {
+             background-color: white;
+             border-radius: 0.75rem;
+             padding: 2rem;
+             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
+             margin-bottom: 2.5rem;
+        }
+        h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        p.section-intro {
+            color: #475569;
+            margin-bottom: 2rem;
+            max-width: 48rem;
+            line-height: 1.6;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 48rem;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        table thead th {
+            cursor: pointer;
+            user-select: none;
+        }
+        table thead th:hover {
+            background-color: #f8fafc;
+        }
+        table tbody tr {
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+        }
+         table tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Cleveland Real Estate Portfolio Analysis</h1>
+            <p class="text-md text-slate-600">Interactive Valuation Report for Financial Review</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-10">
+
+        <section id="dashboard" class="mb-12">
+            <h2 class="text-center">Executive Dashboard</h2>
+            <p class="section-intro text-center mx-auto">
+                This report presents a comprehensive valuation of a 31-property real estate portfolio in Cleveland, Ohio. The following key metrics provide a high-level overview of the portfolio's current financial standing and future potential.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="kpi-card">
+                    <div class="kpi-value">$2.64M</div>
+                    <div class="kpi-label">Total Mid-Point Valuation</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">$3.29M</div>
+                    <div class="kpi-label">Projected 5-Year Value</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value">31</div>
+                    <div class="kpi-label">Properties Analyzed</div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="market-context" class="section-card">
+            <h2>Cleveland Market Context</h2>
+            <p class="section-intro">
+                To accurately assess the portfolio, it is crucial to understand the underlying dynamics of the Cleveland real estate market. The city is defined by strong affordability compared to national averages and robust demand, which together create a favorable environment for investment and appreciation, even as inventory levels rise.
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3>Market Affordability: Cleveland vs. National</h3>
+                    <div class="chart-container">
+                        <canvas id="affordabilityChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3>Market Velocity: Homes Sold Above Asking Price</h3>
+                    <div class="chart-container">
+                        <canvas id="marketCompetitionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="methodology" class="section-card">
+            <h2>Valuation Methodology</h2>
+            <p class="section-intro">
+                All valuations are derived using the Sales Comparison Approach (SCA), the industry standard for residential properties. This method provides an objective, market-driven assessment by comparing each property to similar, recently sold homes and making systematic adjustments for any differences.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                 <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div class="text-3xl font-bold text-indigo-600 mb-2">1</div>
+                    <h4 class="font-semibold text-slate-700">Analyze Subject Property</h4>
+                </div>
+                 <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div class="text-3xl font-bold text-indigo-600 mb-2">2</div>
+                    <h4 class="font-semibold text-slate-700">Find Comparable Sales</h4>
+                </div>
+                 <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div class="text-3xl font-bold text-indigo-600 mb-2">3</div>
+                    <h4 class="font-semibold text-slate-700">Adjust for Differences</h4>
+                </div>
+                 <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div class="text-3xl font-bold text-indigo-600 mb-2">4</div>
+                    <h4 class="font-semibold text-slate-700">Determine Final Value</h4>
+                </div>
+            </div>
+        </section>
+
+        <section id="portfolio-analysis" class="section-card">
+            <h2>Portfolio Composition & Growth</h2>
+            <p class="section-intro">
+                The portfolio's structure reveals a strategic focus on properties within the sub-$100k valuation range, which is characteristic of investment-grade assets in Cleveland. This concentration offers significant potential for both rental income and capital appreciation, as demonstrated by the strong 5-year growth projection.
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3>Distribution of Mid-Point Valuations</h3>
+                    <div class="chart-container">
+                        <canvas id="valueDistributionChart"></canvas>
+                    </div>
+                </div>
+                 <div>
+                    <h3>Portfolio Value Projection (5-Year)</h3>
+                    <div class="chart-container">
+                        <canvas id="growthProjectionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="property-details" class="section-card">
+            <div class="md:flex justify-between items-center mb-4">
+                 <h2 class="mb-2 md:mb-0">Interactive Property Explorer</h2>
+                 <input type="text" id="searchInput" placeholder="Search by address..." class="w-full md:w-64 p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <p class="section-intro">
+                The following table contains the complete valuation data for all 31 properties. Click on any row to view a detailed analysis for that specific property, including its physical characteristics, sales history, and the rationale behind its valuation. You can also sort the table by clicking on the column headers.
+            </p>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" data-sort="address">Property Address ↕</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" data-sort="mid">Mid Value ↕</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" data-sort="low">Low Value ↕</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" data-sort="high">High Value ↕</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" data-sort-numeric="true" data-sort="future">5-Year Est. ↕</th>
+                        </tr>
+                    </thead>
+                    <tbody id="property-table-body" class="bg-white divide-y divide-slate-200">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 mt-12 py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>This interactive report is derived from the "Property Portfolio Valuation Report: Cleveland, Ohio."</p>
+            <p class="text-sm mt-2">Data sourced from Redfin, Zillow, Realtor.com, and public records. All valuations are estimates for financial assessment purposes only.</p>
+            <p class="text-sm mt-2">Generated on June 17, 2025.</p>
+        </div>
+    </footer>
+
+    <div id="propertyModal" class="modal-overlay">
+        <div class="modal-content" id="modalInnerContent">
+        </div>
+    </div>
+
+    <script>
+        const propertyData = [
+            { id: 1, address: '3683 E 52 ST', low: 55000, mid: 75000, high: 95000, future: 93500, overview: 'This property features 3 bedrooms, 1 bathroom, with an above-grade finished area of 880 sq ft and a total living area of 1,276 sq ft. It sits on a 4,830 sq ft lot (0.1109 acres) and was built in 1875, with a renovation noted in 1962. The two-story home includes a 1-car detached garage and an unfinished basement. The property is described as an "INVESTOR ALERT" with "great potential with the right care".', analysis: 'The wide range in recent sales prices for this property ($41.5K to $92.3K within months) is a critical indicator of its value being highly dependent on its condition or the nature of the transaction. The lower price likely reflects a distressed or "as-is" sale, while the higher price suggests a more market-ready or improved state. The "investor alert" status implies a need for work, which would warrant a downward adjustment from properties in good condition.' },
+            { id: 2, address: '11118 Harvey Ave', low: 70000, mid: 85000, high: 100000, future: 105900, overview: 'This Colonial-style home features 4 bedrooms and 2 bathrooms (1 full, 1 half), with a total interior livable area of 1,644 sq ft on a 2,300 sq ft lot. Built in 1900, it offers off-street parking and a partially finished basement. The property is currently leased, indicating its rentable condition and suitability as an investment.', analysis: 'The substantial increase from $44K to $90K within two months suggests a significant improvement in condition or a shift from a distressed sale to a market-value transaction. The description as a "Terrific Colonial" and "Investment Opportunity" implies it is in a good, rentable state.' },
+            { id: 3, address: '7927 Spafford RD', low: 70000, mid: 85000, high: 100000, future: 105900, overview: 'This single-family home, built in 1875, offers 3 bedrooms and 1 bathroom across 1,296 sq ft, on a 2,635 sq ft lot. It features vinyl siding, a new roof installed in 2021, and new carpet/vinyl flooring from 2022. The property includes a full basement.', analysis: 'The significant price increase from $43,000 to $90,000 within a few months, coupled with recent updates (new roof, new flooring), indicates that the earlier lower sale was likely an "as-is" or distressed transaction, and the higher sale reflects its improved, more market-ready condition.' },
+            { id: 4, address: '817 E 156 ST', low: 80000, mid: 95000, high: 115000, future: 118200, overview: 'This Colonial-style home, built in 1916, offers 3 bedrooms and 2 bathrooms (1 full, 1 half) across 1,189 sq ft, on a 5,227 sq ft lot. It boasts several recent updates, including a newer roof (2016), hot water tank (2016), windows (2018), and garage door (2017). The property features an enclosed porch or rear sun porch and was sold "As Is".', analysis: 'The substantial increase from $35,770 to $90,000 within a short period, coupled with the noted updates, indicates that the earlier lower price was likely a distressed sale. The subsequent higher sale reflects the property\'s improved condition, though the "Sold As Is" designation suggests some remaining deferred maintenance.' },
+            { id: 5, address: '4108 E 91 St', low: 70000, mid: 85000, high: 100000, future: 105900, overview: 'This single-family home, built in 1918, offers 3 bedrooms and 1 bathroom across 1,512 sq ft, on a 3,920 sq ft lot. It features a partially finished basement, a fireplace, and garage parking.', analysis: 'The property\'s sales history, showing a significant increase from $25K to $90K in a few months, strongly suggests a major renovation or a distressed initial sale followed by a market-value transaction.' },
+            { id: 6, address: '3251 E 130 St.', low: 65000, mid: 75000, high: 90000, future: 93500, overview: 'This single-family home, built in 1918, features 3 bedrooms and 1 bathroom across 1,480 sq ft, on a 5,998 sq ft lot. It includes a partially finished basement. The property is described as "95% move-in-ready" but was "sold as-is".', analysis: 'The description of the property as "95% move-in-ready" despite being "sold as-is" suggests it was in decent condition, justifying the $75,000 sale after a lower distressed sale of $30,000. Its value is directly tied to this recent market transaction.' },
+            { id: 7, address: '6520 Rogers Ave', low: 65000, mid: 80000, high: 95000, future: 99500, overview: 'This single-family home, built in 1900, features 3 bedrooms and 2 bathrooms across 980 sq ft, on a 2,100 sq ft lot.', analysis: 'The property experienced a significant value increase from $33K to $90K within a few months, strongly suggesting a renovation or a distressed initial sale followed by a market-value transaction. The mid-valuation is set conservatively below the most recent sale.' },
+            { id: 8, address: '2893 E 119', low: 75000, mid: 90000, high: 105000, future: 111700, overview: 'This home, built in 1910, offers 3 bedrooms and 1 bathroom across 1,021 sq ft. It is described as a "Perfect starter home" needing "a little TLC but most work has already been done," featuring "gleaming hardwood floors downstairs, new tile in kitchen".', analysis: 'The significant price difference between the May 2023 ($53K) and July 2023 ($100K) sales strongly suggests substantial improvements were made between transactions. The property\'s description supports a higher valuation reflecting its updated state.' },
+            { id: 9, address: '4093 East 127', low: 70000, mid: 85000, high: 100000, future: 105900, overview: 'This home, built in 1919 and renovated in 1952, features 3 bedrooms and 1 bathroom across 1,142 sq ft, on a 3,201 sq ft lot. It includes a partially finished basement and detached garage parking.', analysis: 'The last sold price of $90,000 is higher than the automated estimates, suggesting it was in good condition at the time of sale, or that automated models are lagging. The valuation is set slightly below the last sale for a conservative estimate.' },
+            { id: 10, address: '10016 Sandusky Ave.', low: 80000, mid: 100000, high: 120000, future: 124600, overview: 'This Cape Cod style home, built in 1956, presents conflicting data (3-4 beds, 1.5-2 baths, 1,202-2,404 sq ft). It is described as an "Investment opportunity with some TLC. Handyman special. REO Bank Owned".', analysis: 'The "Handyman special" and "REO Bank Owned" description points to a distressed history. The recent sale at $115,000 after a $37,000 sale suggests a rapid flip. The valuation accounts for this volatility and the need for potential further investment.' },
+            { id: 11, address: '3511 W 46 ST', low: 90000, mid: 110000, high: 130000, future: 136900, overview: 'This Colonial-style home, built in 1910, features 3 bedrooms and 1 bathroom across 1,099 sq ft, on a 3,500 sq ft lot. It includes a porch.', analysis: 'The substantial jump from $56K to $110K within a month strongly suggests a rapid renovation and flip. The mid valuation is aligned with this recent, valid market transaction and supported by automated estimates.' },
+            { id: 12, address: '8204 Dorver Ave', low: 30000, mid: 45000, high: 60000, future: 55900, overview: 'This single-family residence, built in 1910, has a size of 1,580 sq ft. It features a detached garage, paved driveway, and forced air gas heating, but lacks air conditioning.', analysis: 'The last sold price of $32,000 is very low for the Cleveland market, strongly suggesting it was a distressed sale or in very poor condition. The valuation relies on its last known sale price and the broader market context for properties needing substantial work.' },
+            { id: 13, address: '4007 E 123 St', low: 80000, mid: 100000, high: 115000, future: 124600, overview: 'This Colonial-style single-family home, built in 1917, features 3 bedrooms and 1 bathroom across 1,161 sq ft. It includes a partially finished basement and a detached garage.', analysis: 'The property\'s recent sales history, showing a pending sale at $39.9K followed by a sale at $105K in less than three months, strongly suggests a rapid flip after renovation. The valuation is set conservatively near the recent sale price.' },
+            { id: 14, address: '12505 Farringdon Ave', low: 75000, mid: 90000, high: 105000, future: 111700, overview: 'This Cape Cod style single-family home, built in 1922, features 4 bedrooms and 1 bathroom across 1,296 sq ft. It includes detached garage parking.', analysis: 'The significant price increase from $48K to $100K within less than two months strongly suggests a rapid renovation and flip. The valuation is set conservatively below the most recent sale to account for market fluctuations.' },
+            { id: 15, address: '981 E 143 ST', low: 45000, mid: 60000, high: 75000, future: 74600, overview: 'This Colonial-style home, built in 1925, features 3 bedrooms and 1 bathroom across 1,528 sq ft. The property is described as a "Fixer" with "some updates needed" and listed as a "Great opportunity to build your rental portfolio".', analysis: 'The property\'s history shows fluctuating values, consistent with a property that requires updates. The "Fixer" description confirms its condition warrants a lower valuation compared to market-ready homes. The valuation is based on recent comparable sales for similar condition properties.' },
+            { id: 16, address: '6522 Hosmer Ave', low: 70000, mid: 90000, high: 110000, future: 111700, overview: 'This single-family home, built in 1900, features 4 bedrooms and 1 bathroom across 1,254 sq ft. It includes a 2-car garage.', analysis: 'The sales history shows a significant increase from $38K to $100K within a few months, strongly suggesting a renovation and flip. The higher sale price likely reflects a property that has undergone improvements to bring it to market-ready condition.' },
+            { id: 17, address: '16301 S Lotus Dr', low: 85000, mid: 100000, high: 120000, future: 124600, overview: 'This Colonial-style single-family home, built in 1922, features 4 bedrooms and 1 bathroom across 1,344 sq ft. It includes a 1-car detached garage and a full basement with a fireplace.', analysis: 'The sales history shows a significant increase from $55K to $105K within three months, strongly suggesting a rapid renovation and flip. The valuation is set conservatively near its most recent sale price, which is supported by automated estimates.' },
+            { id: 18, address: '398 E 148 St', low: 80000, mid: 95000, high: 115000, future: 118200, overview: 'This Colonial-style single-family home, built in 1920, features 3 bedrooms and 1.5 bathrooms across ~1,150 sq ft.', analysis: 'The sales history shows a significant increase from $60K to $105K within six months, strongly suggesting a renovation and flip. The higher sale price likely reflects a property that has undergone improvements to bring it to market-ready condition.' },
+            { id: 19, address: '13818 Melzer Ave', low: 80000, mid: 95000, high: 110000, future: 118200, overview: 'This Cape Cod style home, built in 1925, features 4 bedrooms and 1 bathroom with conflicting sq ft data (~1,239-1,539 sq ft). It includes a full basement and a 2-car detached garage.', analysis: 'The significant price increase from $48K to $100K within a few months strongly suggests a rapid renovation and flip. The Zestimate®️ supports the higher valuation, suggesting the property is in good condition.' },
+            { id: 20, address: '6714 Hosmer Ave', low: 50000, mid: 65000, high: 80000, future: 80900, overview: 'This Colonial-style home, built in 1900, features 3 bedrooms and 2 bathrooms across 1,518 sq ft. It is a tenanted investment property with the tenant paying $850/month.', analysis: 'The recent sales at $50,000 suggest a property in fair, rentable condition. The mid-valuation is set higher to reflect its income-producing status and market comparables, while acknowledging it is not fully renovated.' },
+            { id: 21, address: '5904 Hosmer Ave', low: 40000, mid: 55000, high: 70000, future: 68400, overview: 'This single-family home features 3 bedrooms and 1 bathroom across 1,127 sq ft.', analysis: 'The last sold price of $43,000 indicates a property likely in fair condition or one that required some updates at the time of sale. The valuation is based on this sale and recent comparables for similar condition properties.' },
+            { id: 22, address: '837 E 156 St', low: 50000, mid: 75000, high: 90000, future: 93500, overview: 'This Colonial-style home, built in 1900, features 4 bedrooms and 2 bathrooms across 1,248 sq ft. It was described as having "potential ROI" and being "Priced to sell as is".', analysis: 'The recent sale at $38,000, significantly lower than earlier listings, suggests it sold in a distressed or "as-is" condition. The 2020 sale at $64,500 and higher-priced comps provide a better indication of its value in a more stable, improved market condition.' },
+            { id: 23, address: '9613 Nelson Ave', low: 35000, mid: 50000, high: 70000, future: 62200, overview: 'This Colonial-style home, built in 1924, features 3 bedrooms and 1 bathroom across 1,536 sq ft (total structure area).', analysis: 'The recent sale at $38,000, lower than its listing price, suggests it sold in an "as-is" condition, likely to an investor. The property\'s age and the low price per square foot indicate it likely requires significant updates.' },
+            { id: 24, address: '3622 E 138 St', low: 65000, mid: 85000, high: 100000, future: 105900, overview: 'This Cape Cod style home, built in 1915, features 3 bedrooms and 1 bathroom across 1,034 sq ft. It has a newer hot water tank and furnace, vinyl plank flooring, and a 2-car detached garage.', analysis: 'The property has recent sales at both $72,500 and $40,000, suggesting fluctuations in condition or transaction type. The description of recent updates supports a higher mid-range valuation, implying the $40,000 sale was likely distressed.' },
+            { id: 25, address: '3291 E 119', low: 70000, mid: 90000, high: 105000, future: 111700, overview: 'This home, built in 1915, features 3 bedrooms and 1 bathroom across 1,230 sq ft. The property is described as a "Perfect starter home" needing "a little TLC but most work has as already been done," with "gleaming hardwood floors downstairs, new tile in kitchen".', analysis: 'The property\'s last recorded sale is from 2018 at a very low price and is not reflective of current value. The description of improvements and strong automated estimates/comparables justify a much higher current valuation.' },
+            { id: 26, address: '4136 E 99 St', low: 75000, mid: 95000, high: 115000, future: 118200, overview: 'This Colonial-style home, built in 1920, features 4 bedrooms and 2 bathrooms across 2,173 sq ft (total structure). It is described as "well maintained and ready to move in. Main floor updated kitchen, Formal Dining and Living room."', analysis: 'The property\'s sale at $55,000 is significantly lower than its Zestimate®️ and "well maintained" description, suggesting it sold in an "as-is" condition to an investor. The valuation reflects the potential value if brought up to its described standard.' },
+            { id: 27, address: '3440 E 73 St', low: 35000, mid: 50000, high: 70000, future: 62200, overview: 'This Colonial-style home, built in 1900, features 3 bedrooms and 1 bathroom across 1,418 sq ft. It is described as an "Investor special!!!" and "Fixer".', analysis: 'The sale at $35,200, lower than its listing price, confirms its "Fixer" status and indicates it sold in an "as-is" condition, likely to an investor. This price reflects a property needing significant work, and the valuation is based on this premise.' },
+            { id: 28, address: '11917 Harvard Ave', low: 65000, mid: 80000, high: 95000, future: 99500, overview: 'This Cape Cod style home, built in 1954, features 3 bedrooms and 2 bathrooms across 1,512 sq ft. It has a new furnace (2021), new hot water tank (2021), and rebuilt chimney/roof maintenance (2022).', analysis: 'Despite significant recent updates, the property sold for a low $50,000, likely because the "Seller has numerous properties to sell" and sought a quick disposition. The valuation reflects a higher value more in line with the property\'s actual improved condition.' },
+            { id: 29, address: '411 E 112 St', low: 50000, mid: 75000, high: 95000, future: 93500, overview: 'This Colonial-style home, built in 1924, features 3 bedrooms and 2 bathrooms across 1,595 sq ft (total structure). It is described as "ideal for both homeowners and investors," but "Needs updates. Property being sold as-is".', analysis: 'The sale at $46,000, lower than its listing price and significantly lower than its Zestimate®️, confirms its "as-is" condition. The price reflects a property needing substantial updates to reach its full market potential.' },
+            { id: 30, address: '479 E 118 ST', low: 50000, mid: 75000, high: 95000, future: 93500, overview: 'This Colonial-style home, built in 1918, features 3 bedrooms and 1 bathroom across 2,104 sq ft (total living area).', analysis: 'The recent sale at $45,000 is significantly lower than its Trulia Estimate and past sales, suggesting it sold in an "as-is" condition. Its larger square footage influences its potential value after renovation, which is reflected in the mid and high estimates.' },
+            { id: 31, address: '475 E 108 St', low: 60000, mid: 80000, high: 100000, future: 99500, overview: 'This Colonial-style home, built in 1912, features 3 bedrooms and 1 bathroom. It is described as "charming, spacious, Colonial offering the perfect blend of traditional style, modern updates," but also noted as a "Fixer".', analysis: 'The recent sale at $59,000 is significantly lower than the Zestimate®️, indicating that despite some "modern updates," it was sold in an "as-is" condition as a "Fixer" property. The valuation reflects its potential after further investment.' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartColors = {
+                primary: '#4338ca', // Indigo 700
+                secondary: '#7c3aed', // Violet 600
+                accent: '#f59e0b', // Amber 500
+                neutral: '#64748b', // Slate 500
+                bg1: 'rgba(67, 56, 202, 0.6)',
+                bg2: 'rgba(124, 58, 237, 0.6)',
+                bg3: 'rgba(245, 158, 11, 0.6)',
+            };
+            
+            const tooltipConfig = {
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: '#475569',
+                            font: {
+                                family: "'Inter', sans-serif"
+                            }
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: '#1e293b',
+                        titleFont: { size: 14, weight: 'bold', family: "'Inter', sans-serif" },
+                        bodyFont: { size: 12, family: "'Inter', sans-serif" },
+                        padding: 10,
+                        cornerRadius: 6,
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        ticks: { color: '#64748b' },
+                        grid: { color: '#e2e8f0' }
+                    },
+                    x: { 
+                        ticks: { color: '#64748b' },
+                        grid: { display: false }
+                    },
+                }
+            };
+            
+            const formatCurrency = (value) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(value);
+
+            new Chart(document.getElementById('affordabilityChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Cleveland Avg. Price', 'National Median Price'],
+                    datasets: [{
+                        label: 'Price (USD)',
+                        data: [113522, 379100],
+                        backgroundColor: [chartColors.bg1, chartColors.bg2],
+                        borderColor: [chartColors.primary, chartColors.secondary],
+                        borderWidth: 2
+                    }]
+                },
+                options: { ...tooltipConfig, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: (value) => formatCurrency(value) }}, x: { grid: { display: false }} } }
+            });
+
+            new Chart(document.getElementById('marketCompetitionChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sold Above Asking', 'Sold At or Below'],
+                    datasets: [{
+                        data: [46, 54],
+                        backgroundColor: [chartColors.primary, '#e2e8f0'],
+                        borderColor: '#ffffff',
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: { ...tooltipConfig, maintainAspectRatio: false, cutout: '65%' }
+            });
+
+            const valueBrackets = {
+                '< $50k': propertyData.filter(p => p.mid < 50000).length,
+                '$50k - $74.9k': propertyData.filter(p => p.mid >= 50000 && p.mid < 75000).length,
+                '$75k - $99.9k': propertyData.filter(p => p.mid >= 75000 && p.mid < 100000).length,
+                '>= $100k': propertyData.filter(p => p.mid >= 100000).length,
+            };
+
+            new Chart(document.getElementById('valueDistributionChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(valueBrackets),
+                    datasets: [{
+                        label: '# of Properties',
+                        data: Object.values(valueBrackets),
+                        backgroundColor: chartColors.bg1,
+                        borderColor: chartColors.primary,
+                        borderWidth: 2
+                    }]
+                },
+                options: { ...tooltipConfig, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { stepSize: 2 } }, y: { grid: { display: false }} } }
+            });
+            
+            new Chart(document.getElementById('growthProjectionChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Portfolio Value'],
+                    datasets: [{
+                        label: 'Current Mid-Point Value',
+                        data: [2640000],
+                        backgroundColor: chartColors.bg1,
+                        borderColor: chartColors.primary,
+                        borderWidth: 2
+                    }, {
+                        label: 'Projected 5-Year Growth',
+                        data: [3288600 - 2640000],
+                        backgroundColor: chartColors.bg3,
+                        borderColor: chartColors.accent,
+                        borderWidth: 2
+                    }]
+                },
+                options: { ...tooltipConfig, maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, ticks: { callback: (value) => formatCurrency(value) }}}}
+            });
+
+            const tableBody = document.getElementById('property-table-body');
+            const searchInput = document.getElementById('searchInput');
+            let currentSort = { key: 'address', asc: true };
+
+            const renderTable = (data) => {
+                tableBody.innerHTML = '';
+                data.forEach(prop => {
+                    const row = document.createElement('tr');
+                    row.dataset.propertyId = prop.id;
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">${prop.address}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-semibold">${formatCurrency(prop.mid)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${formatCurrency(prop.low)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${formatCurrency(prop.high)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-600 font-semibold">${formatCurrency(prop.future)}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            };
+
+            const sortData = (key) => {
+                currentSort.asc = currentSort.key === key ? !currentSort.asc : true;
+                currentSort.key = key;
+
+                propertyData.sort((a, b) => {
+                    const valA = a[key];
+                    const valB = b[key];
+                    if (typeof valA === 'string') {
+                        return currentSort.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                    }
+                    return currentSort.asc ? valA - valB : valB - valA;
+                });
+                filterAndRender();
+            };
+            
+            const filterAndRender = () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                const filteredData = propertyData.filter(p => p.address.toLowerCase().includes(searchTerm));
+                renderTable(filteredData);
+            };
+
+            document.querySelectorAll('thead th').forEach(th => {
+                th.addEventListener('click', () => sortData(th.dataset.sort));
+            });
+            
+            searchInput.addEventListener('input', filterAndRender);
+            
+            const modal = document.getElementById('propertyModal');
+            const modalContent = document.getElementById('modalInnerContent');
+            
+            tableBody.addEventListener('click', (e) => {
+                const row = e.target.closest('tr');
+                if (!row) return;
+                
+                const propId = parseInt(row.dataset.propertyId);
+                const prop = propertyData.find(p => p.id === propId);
+                if (!prop) return;
+
+                modalContent.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <h2 class="text-2xl mb-4">${prop.address}</h2>
+                        <button id="closeModalBtn" class="text-3xl font-bold text-slate-400 hover:text-slate-600">×</button>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
+                        <div class="bg-slate-50 p-3 rounded-lg"><div class="text-xs text-slate-500">Low Value</div><div class="font-bold text-lg">${formatCurrency(prop.low)}</div></div>
+                        <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-200"><div class="text-xs text-indigo-700">Mid Value</div><div class="font-bold text-lg text-indigo-900">${formatCurrency(prop.mid)}</div></div>
+                        <div class="bg-slate-50 p-3 rounded-lg"><div class="text-xs text-slate-500">High Value</div><div class="font-bold text-lg">${formatCurrency(prop.high)}</div></div>
+                        <div class="bg-emerald-50 p-3 rounded-lg"><div class="text-xs text-emerald-700">5-Year Est.</div><div class="font-bold text-lg text-emerald-900">${formatCurrency(prop.future)}</div></div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2 text-left">Property Overview</h3>
+                        <p class="text-slate-600 mb-4">${prop.overview}</p>
+                        <h3 class="text-xl font-semibold mb-2 text-left">Valuation Analysis</h3>
+                        <p class="text-slate-600">${prop.analysis}</p>
+                    </div>
+                `;
+                modal.classList.add('active');
+                document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.remove('active'));
+            });
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+
+            renderTable(propertyData);
+        });
+    </script>
+</body>
+</html>
