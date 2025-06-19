@@ -132,6 +132,34 @@
          table tbody tr:hover {
             background-color: #f1f5f9;
         }
+        .generate-btn {
+            background-color: #4338ca;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .generate-btn:hover {
+            background-color: #312e81;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -148,19 +176,19 @@
         <section id="dashboard" class="mb-12">
             <h2 class="text-center">Executive Dashboard</h2>
             <p class="section-intro text-center mx-auto">
-                This report presents a comprehensive valuation of a 31-property real estate portfolio in Cleveland, Ohio. The following key metrics provide a high-level overview of the portfolio's current financial standing and future potential.
+                This report presents a comprehensive valuation of a 33-property real estate portfolio in Cleveland, Ohio. The following key metrics provide a high-level overview of the portfolio's current financial standing and future potential.
             </p>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="kpi-card">
-                    <div class="kpi-value">$2.64M</div>
+                    <div class="kpi-value">$2.77M</div>
                     <div class="kpi-label">Total Mid-Point Valuation</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-value">$3.29M</div>
+                    <div class="kpi-value">$3.46M</div>
                     <div class="kpi-label">Projected 5-Year Value</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-value">31</div>
+                    <div class="kpi-value">33</div>
                     <div class="kpi-label">Properties Analyzed</div>
                 </div>
             </div>
@@ -239,7 +267,7 @@
                  <input type="text" id="searchInput" placeholder="Search by address..." class="w-full md:w-64 p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
             </div>
             <p class="section-intro">
-                The following table contains the complete valuation data for all 31 properties. Click on any row to view a detailed analysis for that specific property, including its physical characteristics, sales history, and the rationale behind its valuation. You can also sort the table by clicking on the column headers.
+                The following table contains the complete valuation data for all 33 properties. Click on any row to view a detailed analysis for that specific property, including its physical characteristics, sales history, and the rationale behind its valuation. You can also sort the table by clicking on the column headers.
             </p>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200">
@@ -277,7 +305,7 @@
             { id: 1, address: '3683 E 52 ST', low: 55000, mid: 75000, high: 95000, future: 93500, overview: 'This property features 3 bedrooms, 1 bathroom, with an above-grade finished area of 880 sq ft and a total living area of 1,276 sq ft. It sits on a 4,830 sq ft lot (0.1109 acres) and was built in 1875, with a renovation noted in 1962. The two-story home includes a 1-car detached garage and an unfinished basement. The property is described as an "INVESTOR ALERT" with "great potential with the right care".', analysis: 'The wide range in recent sales prices for this property ($41.5K to $92.3K within months) is a critical indicator of its value being highly dependent on its condition or the nature of the transaction. The lower price likely reflects a distressed or "as-is" sale, while the higher price suggests a more market-ready or improved state. The "investor alert" status implies a need for work, which would warrant a downward adjustment from properties in good condition.' },
             { id: 2, address: '11118 Harvey Ave', low: 70000, mid: 85000, high: 100000, future: 105900, overview: 'This Colonial-style home features 4 bedrooms and 2 bathrooms (1 full, 1 half), with a total interior livable area of 1,644 sq ft on a 2,300 sq ft lot. Built in 1900, it offers off-street parking and a partially finished basement. The property is currently leased, indicating its rentable condition and suitability as an investment.', analysis: 'The substantial increase from $44K to $90K within two months suggests a significant improvement in condition or a shift from a distressed sale to a market-value transaction. The description as a "Terrific Colonial" and "Investment Opportunity" implies it is in a good, rentable state.' },
             { id: 3, address: '7927 Spafford RD', low: 70000, mid: 85000, high: 100000, future: 105900, overview: 'This single-family home, built in 1875, offers 3 bedrooms and 1 bathroom across 1,296 sq ft, on a 2,635 sq ft lot. It features vinyl siding, a new roof installed in 2021, and new carpet/vinyl flooring from 2022. The property includes a full basement.', analysis: 'The significant price increase from $43,000 to $90,000 within a few months, coupled with recent updates (new roof, new flooring), indicates that the earlier lower sale was likely an "as-is" or distressed transaction, and the higher sale reflects its improved, more market-ready condition.' },
-            { id: 4, address: '817 E 156 ST', low: 80000, mid: 95000, high: 115000, future: 118200, overview: 'This Colonial-style home, built in 1916, offers 3 bedrooms and 2 bathrooms (1 full, 1 half) across 1,189 sq ft, on a 5,227 sq ft lot. It boasts several recent updates, including a newer roof (2016), hot water tank (2016), windows (2018), and garage door (2017). The property features an enclosed porch or rear sun porch and was sold "As Is".', analysis: 'The substantial increase from $35,770 to $90,000 within a short period, coupled with the noted updates, indicates that the earlier lower price was likely a distressed sale. The subsequent higher sale reflects the property\'s improved condition, though the "Sold As Is" designation suggests some remaining deferred maintenance.' },
+            { id: 4, address: '817 E 156 ST', low: 80000, mid: 95000, high: 115000, future: 118200, overview: 'This Colonial-style home, built in 1916, offers 3 bedrooms and 2 bathrooms (1 full, 1 half), with a total interior livable area of 1,189 sq ft, on a 5,227 sq ft lot. It boasts several recent updates, including a newer roof (2016), hot water tank (2016), windows (2018), and garage door (2017). The property features an enclosed porch or rear sun porch and was sold "As Is".', analysis: 'The substantial increase from $35,770 to $90,000 within a short period, coupled with the noted updates, indicates that the earlier lower price was likely a distressed sale. The subsequent higher sale reflects the property\'s improved condition, though the "Sold As Is" designation suggests some remaining deferred maintenance.' },
             { id: 5, address: '4108 E 91 St', low: 70000, mid: 85000, high: 100000, future: 105900, overview: 'This single-family home, built in 1918, offers 3 bedrooms and 1 bathroom across 1,512 sq ft, on a 3,920 sq ft lot. It features a partially finished basement, a fireplace, and garage parking.', analysis: 'The property\'s sales history, showing a significant increase from $25K to $90K in a few months, strongly suggests a major renovation or a distressed initial sale followed by a market-value transaction.' },
             { id: 6, address: '3251 E 130 St.', low: 65000, mid: 75000, high: 90000, future: 93500, overview: 'This single-family home, built in 1918, features 3 bedrooms and 1 bathroom across 1,480 sq ft, on a 5,998 sq ft lot. It includes a partially finished basement. The property is described as "95% move-in-ready" but was "sold as-is".', analysis: 'The description of the property as "95% move-in-ready" despite being "sold as-is" suggests it was in decent condition, justifying the $75,000 sale after a lower distressed sale of $30,000. Its value is directly tied to this recent market transaction.' },
             { id: 7, address: '6520 Rogers Ave', low: 65000, mid: 80000, high: 95000, future: 99500, overview: 'This single-family home, built in 1900, features 3 bedrooms and 2 bathrooms across 980 sq ft, on a 2,100 sq ft lot.', analysis: 'The property experienced a significant value increase from $33K to $90K within a few months, strongly suggesting a renovation or a distressed initial sale followed by a market-value transaction. The mid-valuation is set conservatively below the most recent sale.' },
@@ -304,7 +332,9 @@
             { id: 28, address: '11917 Harvard Ave', low: 65000, mid: 80000, high: 95000, future: 99500, overview: 'This Cape Cod style home, built in 1954, features 3 bedrooms and 2 bathrooms across 1,512 sq ft. It has a new furnace (2021), new hot water tank (2021), and rebuilt chimney/roof maintenance (2022).', analysis: 'Despite significant recent updates, the property sold for a low $50,000, likely because the "Seller has numerous properties to sell" and sought a quick disposition. The valuation reflects a higher value more in line with the property\'s actual improved condition.' },
             { id: 29, address: '411 E 112 St', low: 50000, mid: 75000, high: 95000, future: 93500, overview: 'This Colonial-style home, built in 1924, features 3 bedrooms and 2 bathrooms across 1,595 sq ft (total structure). It is described as "ideal for both homeowners and investors," but "Needs updates. Property being sold as-is".', analysis: 'The sale at $46,000, lower than its listing price and significantly lower than its Zestimate®️, confirms its "as-is" condition. The price reflects a property needing substantial updates to reach its full market potential.' },
             { id: 30, address: '479 E 118 ST', low: 50000, mid: 75000, high: 95000, future: 93500, overview: 'This Colonial-style home, built in 1918, features 3 bedrooms and 1 bathroom across 2,104 sq ft (total living area).', analysis: 'The recent sale at $45,000 is significantly lower than its Trulia Estimate and past sales, suggesting it sold in an "as-is" condition. Its larger square footage influences its potential value after renovation, which is reflected in the mid and high estimates.' },
-            { id: 31, address: '475 E 108 St', low: 60000, mid: 80000, high: 100000, future: 99500, overview: 'This Colonial-style home, built in 1912, features 3 bedrooms and 1 bathroom. It is described as "charming, spacious, Colonial offering the perfect blend of traditional style, modern updates," but also noted as a "Fixer".', analysis: 'The recent sale at $59,000 is significantly lower than the Zestimate®️, indicating that despite some "modern updates," it was sold in an "as-is" condition as a "Fixer" property. The valuation reflects its potential after further investment.' }
+            { id: 31, address: '475 E 108 St', low: 60000, mid: 80000, high: 100000, future: 99500, overview: 'This Colonial-style home, built in 1912, features 3 bedrooms and 1 bathroom. It is described as "charming, spacious, Colonial offering the perfect blend of traditional style, modern updates," but also noted as a "Fixer".', analysis: 'The recent sale at $59,000 is significantly lower than the Zestimate®️, indicating that despite some "modern updates," it was sold in an "as-is" condition as a "Fixer" property. The valuation reflects its potential after further investment.' },
+            { id: 32, address: '12709 Angelus Ave', low: 60000, mid: 75000, high: 90000, future: 93500, overview: 'This property is a single-family home located in Cleveland, OH. It features 3 bedrooms and 1 bathroom, with a solid structure. It is ideal for investors looking for a property with good rental potential after some cosmetic updates.', analysis: 'Based on recent comparables in the area, this property aligns with mid-range values for homes requiring minor to moderate renovations. Its location suggests stable rental demand, making it a viable investment for steady cash flow.' },
+            { id: 33, address: '9828 Zimmer', low: 45000, mid: 60000, high: 75000, future: 74600, overview: 'A traditional single-family home in Cleveland, OH, offering 3 bedrooms and 1 bath. This property needs significant renovation but has potential for value appreciation in a growing neighborhood.', analysis: 'The property\'s current "as-is" condition places it at the lower end of valuations. However, with strategic renovations, it could achieve market rates comparable to updated homes in the vicinity, making it attractive for a flip or a long-term rental.' }
         ];
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -417,13 +447,13 @@
                     labels: ['Portfolio Value'],
                     datasets: [{
                         label: 'Current Mid-Point Value',
-                        data: [2640000],
+                        data: [2775000],
                         backgroundColor: chartColors.bg1,
                         borderColor: chartColors.primary,
                         borderWidth: 2
                     }, {
                         label: 'Projected 5-Year Growth',
-                        data: [3288600 - 2640000],
+                        data: [3456700 - 2775000],
                         backgroundColor: chartColors.bg3,
                         borderColor: chartColors.accent,
                         borderWidth: 2
@@ -481,6 +511,47 @@
             
             const modal = document.getElementById('propertyModal');
             const modalContent = document.getElementById('modalInnerContent');
+
+            async function generateInvestmentInsight(propertyAddress, overview, analysis) {
+                const insightArea = document.getElementById('llmInsightArea');
+                const generateBtn = document.getElementById('generateInsightBtn');
+                if (!insightArea || !generateBtn) return;
+
+                insightArea.innerHTML = '<div class="flex items-center justify-center text-slate-600"><div class="loading-spinner mr-2"></div>Generating insight...</div>';
+                generateBtn.disabled = true;
+
+                const prompt = `As a real estate investment analyst specializing in the Cleveland market, provide a concise summary of the investment potential, likely renovation needs, and typical rental income outlook for the property at ${propertyAddress} with the following characteristics:\n\nOverview: ${overview}\nValuation Analysis: ${analysis}\n\nFocus on actionable insights for an investor, including specific advice if the property is a "Fixer" or "Investor Alert". Keep it to 3-5 sentences.`;
+
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        insightArea.innerHTML = `<h3 class="text-xl font-semibold mt-6 mb-2 text-left">✨ AI Investment Insight</h3><p class="text-slate-600">${text}</p>`;
+                    } else {
+                        insightArea.innerHTML = `<p class="text-red-500 mt-4">Error: Could not generate insight. Please try again.</p>`;
+                        console.error('Gemini API response structure unexpected:', result);
+                    }
+                } catch (error) {
+                    insightArea.innerHTML = `<p class="text-red-500 mt-4">Error generating insight: ${error.message}. Please check your network connection or try again later.</p>`;
+                    console.error('Error calling Gemini API:', error);
+                } finally {
+                    generateBtn.disabled = false;
+                }
+            }
             
             tableBody.addEventListener('click', (e) => {
                 const row = e.target.closest('tr');
@@ -507,9 +578,15 @@
                         <h3 class="text-xl font-semibold mb-2 text-left">Valuation Analysis</h3>
                         <p class="text-slate-600">${prop.analysis}</p>
                     </div>
+                    <button id="generateInsightBtn" class="generate-btn">✨ Get Investment Insight</button>
+                    <div id="llmInsightArea" class="mt-4"></div>
                 `;
                 modal.classList.add('active');
                 document.getElementById('closeModalBtn').addEventListener('click', () => modal.classList.remove('active'));
+                
+                document.getElementById('generateInsightBtn').addEventListener('click', () => {
+                    generateInvestmentInsight(prop.address, prop.overview, prop.analysis);
+                });
             });
 
             modal.addEventListener('click', (e) => {
