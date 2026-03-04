@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- AOS - Animate on Scroll -->
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <style>
         :root {
             --bg: #09090b;
@@ -28,7 +30,6 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         html { scroll-behavior: smooth; }
 
         body {
@@ -37,11 +38,11 @@
             color: var(--text);
             line-height: 1.65;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
         a { color: var(--accent); text-decoration: none; transition: all 0.2s; }
         a:hover { color: #60a5fa; }
-
         .container { max-width: 880px; margin: 0 auto; padding: 0 28px; }
 
         /* ── Nav ── */
@@ -51,64 +52,124 @@
             backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
             z-index: 100;
+            transform: translateY(-100%);
+            animation: navSlide 0.6s ease 0.3s forwards;
+        }
+        @keyframes navSlide {
+            to { transform: translateY(0); }
         }
         nav .container {
             display: flex; justify-content: space-between; align-items: center; height: 56px;
         }
         nav .logo { font-weight: 700; font-size: 1.05rem; color: var(--text); }
         nav .links { display: flex; gap: 20px; }
-        nav .links a { color: var(--text-muted); font-size: 0.8125rem; font-weight: 500; }
+        nav .links a { color: var(--text-muted); font-size: 0.8125rem; font-weight: 500; transition: color 0.2s; }
         nav .links a:hover { color: var(--text); }
 
         /* ── Hero ── */
         .hero {
-            padding: 160px 0 80px;
+            padding: 140px 0 80px;
             position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
         }
-        .hero::before {
-            content: '';
-            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+        #hero-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
+            z-index: 0;
         }
         .hero-content {
-            display: flex; gap: 40px; align-items: center;
+            display: flex; gap: 48px; align-items: center;
+            position: relative; z-index: 1;
+            width: 100%;
         }
         .hero-photo {
-            width: 160px; height: 160px; min-width: 160px;
+            width: 180px; height: 180px; min-width: 180px;
             border-radius: 50%;
             background: var(--bg-card);
             border: 2px solid var(--border);
             overflow: hidden;
             display: flex; align-items: center; justify-content: center;
+            opacity: 0;
+            animation: photoReveal 0.8s ease 0.5s forwards;
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.08);
         }
-        .hero-photo img {
-            width: 100%; height: 100%; object-fit: cover;
+        @keyframes photoReveal {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
         }
+        .hero-photo img { width: 100%; height: 100%; object-fit: cover; }
         .hero-photo .placeholder {
             font-size: 0.75rem; color: var(--text-muted); text-align: center; padding: 16px;
         }
+
         .hero-text h1 {
-            font-size: 2.75rem; font-weight: 800; letter-spacing: -0.03em;
-            line-height: 1.15; margin-bottom: 12px;
+            font-size: 3rem; font-weight: 800; letter-spacing: -0.03em;
+            line-height: 1.1; margin-bottom: 16px;
+        }
+        .hero-text h1 .name-text {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .hero-text .tagline {
             font-size: 1.15rem; color: var(--text-secondary);
-            margin-bottom: 24px; max-width: 480px;
+            margin-bottom: 28px; max-width: 480px;
+            opacity: 0;
+            animation: fadeUp 0.7s ease 0.8s forwards;
         }
-        .hero-links { display: flex; gap: 12px; flex-wrap: wrap; }
+        .hero-links {
+            display: flex; gap: 12px; flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeUp 0.7s ease 1s forwards;
+        }
+
+        /* Typed cursor */
+        .typed-cursor {
+            display: inline-block;
+            width: 3px;
+            background: var(--accent);
+            animation: blink 1s infinite;
+            margin-left: 2px;
+            vertical-align: text-bottom;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         .btn {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 10px 20px; border-radius: 8px;
             font-size: 0.8125rem; font-weight: 600;
-            transition: all 0.2s; border: none; cursor: pointer;
+            transition: all 0.3s; border: none; cursor: pointer;
         }
-        .btn-primary { background: var(--accent); color: #fff; }
-        .btn-primary:hover { background: #2563eb; color: #fff; box-shadow: 0 0 20px var(--accent-glow); }
+        .btn-primary {
+            background: var(--accent); color: #fff;
+            position: relative; overflow: hidden;
+        }
+        .btn-primary::after {
+            content: '';
+            position: absolute; top: 50%; left: 50%;
+            width: 0; height: 0;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            transition: all 0.5s;
+            transform: translate(-50%, -50%);
+        }
+        .btn-primary:hover::after { width: 300px; height: 300px; }
+        .btn-primary:hover { background: #2563eb; color: #fff; box-shadow: 0 0 30px var(--accent-glow); }
         .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
-        .btn-ghost:hover { background: var(--bg-card); color: var(--text); }
+        .btn-ghost:hover { background: var(--bg-card); color: var(--text); border-color: var(--border-light); }
 
         /* ── Section ── */
         section { padding: 72px 0; }
@@ -124,9 +185,7 @@
             color: var(--text-secondary); font-size: 0.95rem;
             max-width: 600px; margin-bottom: 36px;
         }
-        .divider {
-            border: none; border-top: 1px solid var(--border); margin: 0;
-        }
+        .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
 
         /* ── Stats row ── */
         .stats-row {
@@ -136,9 +195,15 @@
         .stat-card {
             background: var(--bg-card); border: 1px solid var(--border);
             border-radius: 12px; padding: 20px; text-align: center;
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
         .stat-number {
-            font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em;
+            font-size: 2rem; font-weight: 800; letter-spacing: -0.02em;
         }
         .stat-number.blue { color: var(--accent); }
         .stat-number.green { color: var(--green); }
@@ -155,52 +220,54 @@
             content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px;
             width: 2px; background: var(--border);
         }
-        .timeline-item {
-            position: relative; margin-bottom: 32px;
-        }
+        .timeline-item { position: relative; margin-bottom: 32px; }
         .timeline-item::before {
             content: ''; position: absolute; left: -29px; top: 8px;
             width: 10px; height: 10px; border-radius: 50%;
             background: var(--border-light); border: 2px solid var(--bg);
+            transition: all 0.3s;
         }
-        .timeline-item.highlight::before { background: var(--accent); }
+        .timeline-item.highlight::before {
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
         .timeline-date {
             font-size: 0.75rem; color: var(--text-muted); font-weight: 600;
             text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
         }
-        .timeline-item h3 {
-            font-size: 1.05rem; font-weight: 600; margin-bottom: 2px;
-        }
-        .timeline-item .subtitle {
-            font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;
-        }
-        .timeline-item p, .timeline-item ul {
-            font-size: 0.875rem; color: var(--text-muted); line-height: 1.6;
-        }
+        .timeline-item h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 2px; }
+        .timeline-item .subtitle { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .timeline-item p, .timeline-item ul { font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; }
         .timeline-item ul { padding-left: 18px; }
         .timeline-item li { margin-bottom: 4px; }
 
         /* ── Projects grid ── */
-        .projects-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
-        }
+        .projects-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
         .project-card {
             padding: 24px; background: var(--bg-card);
             border: 1px solid var(--border); border-radius: 12px;
-            transition: all 0.25s;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
+        .project-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .project-card:hover::before { opacity: 1; }
         .project-card:hover {
             background: var(--bg-card-hover); border-color: var(--border-light);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
         }
-        .project-card h3 {
-            font-size: 1rem; font-weight: 600; margin-bottom: 8px;
-        }
+        .project-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
         .project-card h3 a { color: var(--text); }
         .project-card h3 a:hover { color: var(--accent); }
         .project-card p {
-            font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 14px;
-            line-height: 1.55;
+            font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.55;
         }
         .project-tags { display: flex; flex-wrap: wrap; gap: 5px; }
         .project-tags span {
@@ -209,21 +276,22 @@
         }
 
         /* ── Volunteering ── */
-        .vol-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-        }
+        .vol-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
         .vol-card {
             padding: 20px; background: var(--bg-card);
             border: 1px solid var(--border); border-radius: 12px;
+            transition: all 0.3s;
+        }
+        .vol-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-2px);
         }
         .vol-card h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
         .vol-card .vol-org { font-size: 0.8rem; color: var(--accent); margin-bottom: 8px; }
         .vol-card p { font-size: 0.8125rem; color: var(--text-muted); }
 
         /* ── Skills ── */
-        .skills-columns {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
-        }
+        .skills-columns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
         .skill-group h3 {
             font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
             letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 12px;
@@ -233,27 +301,28 @@
             padding: 5px 12px; background: var(--bg-card);
             border: 1px solid var(--border); border-radius: 6px;
             font-size: 0.8rem; color: var(--text-secondary); font-weight: 500;
+            transition: all 0.25s;
+        }
+        .skill-tag:hover {
+            border-color: var(--accent);
+            color: var(--text);
+            box-shadow: 0 0 12px var(--accent-glow);
         }
 
         /* ── Photo gallery ── */
-        .gallery {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-            margin-top: 24px;
-        }
+        .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 24px; }
         .gallery-item {
             aspect-ratio: 1; background: var(--bg-card);
             border: 1px solid var(--border); border-radius: 10px;
             overflow: hidden; display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s;
         }
+        .gallery-item:hover { transform: scale(1.03); border-color: var(--border-light); }
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-        .gallery-item .ph {
-            font-size: 0.65rem; color: var(--text-muted); text-align: center; padding: 8px;
-        }
+        .gallery-item .ph { font-size: 0.65rem; color: var(--text-muted); text-align: center; padding: 8px; }
 
         /* ── Contact ── */
-        .contact-grid {
-            display: flex; gap: 12px; flex-wrap: wrap;
-        }
+        .contact-grid { display: flex; gap: 12px; flex-wrap: wrap; }
 
         /* ── Footer ── */
         footer {
@@ -261,11 +330,22 @@
             text-align: center; color: var(--text-muted); font-size: 0.8rem;
         }
 
+        /* ── Scroll progress bar ── */
+        .scroll-progress {
+            position: fixed; top: 56px; left: 0; height: 2px;
+            background: var(--accent);
+            z-index: 101; width: 0%;
+            transition: width 0.05s linear;
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
         /* ── Responsive ── */
         @media (max-width: 768px) {
+            .hero { min-height: auto; padding: 120px 0 60px; }
             .hero-content { flex-direction: column; text-align: center; }
-            .hero-text h1 { font-size: 2rem; }
+            .hero-text h1 { font-size: 2.2rem; }
             .hero-links { justify-content: center; }
+            .hero-photo { width: 140px; height: 140px; min-width: 140px; }
             .stats-row { grid-template-columns: repeat(2, 1fr); }
             .projects-grid { grid-template-columns: 1fr; }
             .vol-grid { grid-template-columns: 1fr; }
@@ -277,6 +357,9 @@
     </style>
 </head>
 <body>
+    <!-- Scroll progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
     <nav>
         <div class="container">
             <span class="logo">Tsach Ovadia</span>
@@ -292,15 +375,16 @@
 
     <main class="container">
 
-        <!-- ════ HERO ════ -->
+        <!-- HERO -->
         <section class="hero">
+            <canvas id="hero-canvas"></canvas>
             <div class="hero-content">
                 <div class="hero-photo">
-                    <!-- Replace with your photo: <img src="photo.jpg" alt="Tsach Ovadia"> -->
+                    <!-- Replace with: <img src="photo.jpg" alt="Tsach Ovadia"> -->
                     <span class="placeholder">Add photo here</span>
                 </div>
                 <div class="hero-text">
-                    <h1>Tsach Ovadia</h1>
+                    <h1><span class="name-text" id="typed-name"></span><span class="typed-cursor" id="cursor">&nbsp;</span></h1>
                     <p class="tagline">Builder, developer, and problem solver. I take ideas from zero to production — whether it's code, a community of 45,000 people, or a 360-camera system deployed in combat.</p>
                     <div class="hero-links">
                         <a href="https://github.com/tsachovadia" class="btn btn-primary" target="_blank">
@@ -317,33 +401,33 @@
             </div>
         </section>
 
-        <!-- ════ NUMBERS ════ -->
+        <!-- NUMBERS -->
         <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-number blue">5</div>
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="0">
+                <div class="stat-number blue" data-count="5">0</div>
                 <div class="stat-label">Years in Shayetet 13</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number green">45K+</div>
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="stat-number green" data-count="45" data-suffix="K+">0</div>
                 <div class="stat-label">Community Members</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number amber">10+</div>
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-number amber" data-count="10" data-suffix="+">0</div>
                 <div class="stat-label">Products Shipped</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number purple">4</div>
+            <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-number purple" data-count="4">0</div>
                 <div class="stat-label">Languages Spoken</div>
             </div>
         </div>
 
         <hr class="divider">
 
-        <!-- ════ ABOUT ════ -->
+        <!-- ABOUT -->
         <section id="about">
-            <div class="section-label">About</div>
-            <h2>The Short Version</h2>
-            <div class="section-desc">
+            <div class="section-label" data-aos="fade-right">About</div>
+            <h2 data-aos="fade-right" data-aos-delay="50">The Short Version</h2>
+            <div class="section-desc" data-aos="fade-up" data-aos-delay="100">
                 <p>I spent 5 years in Shayetet 13 (Israeli Naval Special Forces) as a combat diver, sniper, and team leader. After military service, I taught myself to code, scored 100/100 in an intensive full-stack program, and started building things.</p>
                 <p style="margin-top: 12px;">Since then I've founded a 45,000-member community, built a real estate tech platform from scratch, shipped 10+ web applications, completed a PM internship at a startup, and studied Business & CS at Reichman University (GPA 90). I also do standup comedy, write rap, and speak four languages.</p>
                 <p style="margin-top: 12px;">I'm not a specialist. I'm the person you put on a problem when you need it solved — whatever it takes.</p>
@@ -352,13 +436,13 @@
 
         <hr class="divider">
 
-        <!-- ════ EXPERIENCE TIMELINE ════ -->
+        <!-- EXPERIENCE TIMELINE -->
         <section id="experience">
-            <div class="section-label">Experience</div>
-            <h2>Where I've Been</h2>
+            <div class="section-label" data-aos="fade-right">Experience</div>
+            <h2 data-aos="fade-right" data-aos-delay="50">Where I've Been</h2>
 
             <div class="timeline">
-                <div class="timeline-item highlight">
+                <div class="timeline-item highlight" data-aos="fade-left" data-aos-delay="0">
                     <div class="timeline-date">2015 - 2020</div>
                     <h3>Shayetet 13 — Israeli Naval Special Forces</h3>
                     <div class="subtitle">Combat Diver &middot; Sniper &middot; Team Leader &middot; Raider</div>
@@ -370,7 +454,7 @@
                     </ul>
                 </div>
 
-                <div class="timeline-item highlight">
+                <div class="timeline-item highlight" data-aos="fade-left" data-aos-delay="50">
                     <div class="timeline-date">2023 - 2024 &middot; Reserves</div>
                     <h3>Swords of Iron — Combat Reserves in Gaza</h3>
                     <div class="subtitle">Called up after October 7th</div>
@@ -381,35 +465,35 @@
                     </ul>
                 </div>
 
-                <div class="timeline-item">
+                <div class="timeline-item" data-aos="fade-left" data-aos-delay="0">
                     <div class="timeline-date">2020</div>
                     <h3>Cyber4s — Scale-Up Velocity</h3>
                     <div class="subtitle">Full-Stack Development Program &middot; Final Grade: 100/100</div>
                     <p>6-month intensive: React, TypeScript, Node.js, Express, SQL, Docker, REST/GraphQL. CEO offered employment upon graduation.</p>
                 </div>
 
-                <div class="timeline-item highlight">
+                <div class="timeline-item highlight" data-aos="fade-left" data-aos-delay="50">
                     <div class="timeline-date">2020 - Present</div>
                     <h3>Founder — "Mitlabetim" Community</h3>
                     <div class="subtitle">45,000+ members &middot; Israel's largest career-decision community</div>
                     <p>Built from a personal need into a massive community. Later developed the MVP web platform (React, Supabase, AI) with paying customers.</p>
                 </div>
 
-                <div class="timeline-item">
+                <div class="timeline-item" data-aos="fade-left" data-aos-delay="0">
                     <div class="timeline-date">2022 - Present</div>
                     <h3>Reichman University</h3>
                     <div class="subtitle">B.A. Business Administration & Entrepreneurship &middot; GPA 90</div>
                     <p>Completed most of the Computer Science curriculum alongside the BA. Member of TechTalk-RUEC and Product Club.</p>
                 </div>
 
-                <div class="timeline-item">
+                <div class="timeline-item" data-aos="fade-left" data-aos-delay="50">
                     <div class="timeline-date">2024</div>
                     <h3>Product Manager Intern — Fay</h3>
                     <div class="subtitle">Early-stage startup &middot; University track</div>
                     <p>Product strategy, feature prioritization, cross-functional collaboration between engineering, product, and customer success.</p>
                 </div>
 
-                <div class="timeline-item highlight">
+                <div class="timeline-item highlight" data-aos="fade-left" data-aos-delay="0">
                     <div class="timeline-date">2025</div>
                     <h3>Technical Co-Founder & Operations — Segula</h3>
                     <div class="subtitle">US Real Estate Investment Platform</div>
@@ -421,7 +505,7 @@
                     </ul>
                 </div>
 
-                <div class="timeline-item">
+                <div class="timeline-item" data-aos="fade-left" data-aos-delay="50">
                     <div class="timeline-date">2023 - Present</div>
                     <h3>Business Consultant — Fugu Footwear & Ventures</h3>
                     <div class="subtitle">With partner Udi</div>
@@ -432,49 +516,49 @@
 
         <hr class="divider">
 
-        <!-- ════ PROJECTS ════ -->
+        <!-- PROJECTS -->
         <section id="projects">
-            <div class="section-label">Projects</div>
-            <h2>Things I've Built</h2>
-            <p class="section-desc">Production applications shipped and running. I build end-to-end — from database design to deployment.</p>
+            <div class="section-label" data-aos="fade-right">Projects</div>
+            <h2 data-aos="fade-right" data-aos-delay="50">Things I've Built</h2>
+            <p class="section-desc" data-aos="fade-up" data-aos-delay="100">Production applications shipped and running. I build end-to-end — from database design to deployment.</p>
 
             <div class="projects-grid">
-                <div class="project-card">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="0">
                     <h3><a href="https://github.com/tsachovadia/bagrut-mvp" target="_blank">BagrutCalc</a></h3>
                     <p>University admission calculator for Israeli students. Grade analysis, program matching across 10 universities, OCR extraction, Telegram bot, and built-in CRM.</p>
                     <div class="project-tags">
                         <span>React</span><span>TypeScript</span><span>Supabase</span><span>Vercel</span>
                     </div>
                 </div>
-                <div class="project-card">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
                     <h3><a href="https://github.com/tsachovadia/RapCap" target="_blank">RapCap</a></h3>
                     <p>Freestyle rap training platform with AI feedback, beat sync, rhyme generation, phonetic analysis, and Whisper transcription.</p>
                     <div class="project-tags">
                         <span>React</span><span>TypeScript</span><span>Firebase</span><span>Gemini AI</span>
                     </div>
                 </div>
-                <div class="project-card">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="0">
                     <h3><a href="https://github.com/tsachovadia/geartag-start-here" target="_blank">GearTag</a></h3>
                     <p>QR-based equipment tracking for travelers. Trip management, packing lists, weight stats, and 30+ language support.</p>
                     <div class="project-tags">
                         <span>React</span><span>TypeScript</span><span>Supabase</span><span>PWA</span>
                     </div>
                 </div>
-                <div class="project-card">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
                     <h3><a href="https://github.com/tsachovadia/Igor" target="_blank">Igor</a></h3>
                     <p>Personal assistant CLI integrating Notion, Google Calendar, Gmail, and WhatsApp into one interface.</p>
                     <div class="project-tags">
                         <span>Python</span><span>Typer</span><span>Notion API</span><span>Google APIs</span>
                     </div>
                 </div>
-                <div class="project-card">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="0">
                     <h3><a href="https://github.com/tsachovadia/wedding-voice-bot" target="_blank">Wedding Voice Bot</a></h3>
                     <p>Telegram bot collecting voice recordings from wedding guests with automatic format conversion and organized storage.</p>
                     <div class="project-tags">
                         <span>Python</span><span>Telegram Bot</span><span>Audio</span>
                     </div>
                 </div>
-                <div class="project-card">
+                <div class="project-card" data-aos="fade-up" data-aos-delay="100">
                     <h3><a href="https://github.com/tsachovadia/youtube-dev-archive" target="_blank">YouTube Dev Archive</a></h3>
                     <p>CLI tool to archive YouTube dev tutorials — metadata extraction, transcripts, and structured local storage.</p>
                     <div class="project-tags">
@@ -486,23 +570,23 @@
 
         <hr class="divider">
 
-        <!-- ════ VOLUNTEERING ════ -->
+        <!-- VOLUNTEERING -->
         <section id="volunteering">
-            <div class="section-label">Giving Back</div>
-            <h2>Volunteering</h2>
+            <div class="section-label" data-aos="fade-right">Giving Back</div>
+            <h2 data-aos="fade-right" data-aos-delay="50">Volunteering</h2>
 
             <div class="vol-grid">
-                <div class="vol-card">
+                <div class="vol-card" data-aos="fade-up" data-aos-delay="0">
                     <h3>At-Risk Youth Mentoring</h3>
                     <div class="vol-org">MMA-Based Program &middot; 2019-2020</div>
                     <p>Mentored at-risk youth through combat sports training, combining discipline, physical fitness, and personal development.</p>
                 </div>
-                <div class="vol-card">
+                <div class="vol-card" data-aos="fade-up" data-aos-delay="100">
                     <h3>Zikaron Menachem</h3>
                     <div class="vol-org">Children with Cancer &middot; 2021-2022</div>
                     <p>Volunteered with children battling cancer — providing companionship, activities, and support during treatment.</p>
                 </div>
-                <div class="vol-card">
+                <div class="vol-card" data-aos="fade-up" data-aos-delay="200">
                     <h3>Nirim</h3>
                     <div class="vol-org">At-Risk Youth &middot; 2021</div>
                     <p>Worked with at-risk youth through a structured mentoring and support program.</p>
@@ -512,12 +596,12 @@
 
         <hr class="divider">
 
-        <!-- ════ SKILLS ════ -->
+        <!-- SKILLS -->
         <section id="skills">
-            <div class="section-label">Toolkit</div>
-            <h2>Skills & Languages</h2>
+            <div class="section-label" data-aos="fade-right">Toolkit</div>
+            <h2 data-aos="fade-right" data-aos-delay="50">Skills & Languages</h2>
 
-            <div class="skills-columns">
+            <div class="skills-columns" data-aos="fade-up" data-aos-delay="100">
                 <div class="skill-group">
                     <h3>Development</h3>
                     <div class="skill-tags">
@@ -568,14 +652,13 @@
 
         <hr class="divider">
 
-        <!-- ════ BEYOND CODE ════ -->
+        <!-- BEYOND CODE -->
         <section>
-            <div class="section-label">Beyond Code</div>
-            <h2>The Other Stuff</h2>
-            <p class="section-desc">I write and perform standup comedy. I write rap and produce music. I taught myself Arabic by talking to bus drivers in the Arava desert. I completed a 10-day silent meditation course in Dharamsala, India. I once rode a motorcycle across India with a violin strapped to the back.</p>
+            <div class="section-label" data-aos="fade-right">Beyond Code</div>
+            <h2 data-aos="fade-right" data-aos-delay="50">The Other Stuff</h2>
+            <p class="section-desc" data-aos="fade-up" data-aos-delay="100">I write and perform standup comedy. I write rap and produce music. I taught myself Arabic by talking to bus drivers in the Arava desert. I completed a 10-day silent meditation course in Dharamsala, India. I once rode a motorcycle across India with a violin strapped to the back.</p>
 
-            <!-- Photo gallery placeholders -->
-            <div class="gallery">
+            <div class="gallery" data-aos="fade-up" data-aos-delay="150">
                 <div class="gallery-item"><span class="ph">Photo 1</span></div>
                 <div class="gallery-item"><span class="ph">Photo 2</span></div>
                 <div class="gallery-item"><span class="ph">Photo 3</span></div>
@@ -585,12 +668,12 @@
 
         <hr class="divider">
 
-        <!-- ════ CONTACT ════ -->
+        <!-- CONTACT -->
         <section id="contact">
-            <div class="section-label">Get in Touch</div>
-            <h2>Let's Talk</h2>
-            <p class="section-desc">Open to full-stack engineering, product, operations, and business development roles. Or just interesting conversations.</p>
-            <div class="contact-grid">
+            <div class="section-label" data-aos="fade-right">Get in Touch</div>
+            <h2 data-aos="fade-right" data-aos-delay="50">Let's Talk</h2>
+            <p class="section-desc" data-aos="fade-up" data-aos-delay="100">Open to full-stack engineering, product, operations, and business development roles. Or just interesting conversations.</p>
+            <div class="contact-grid" data-aos="fade-up" data-aos-delay="150">
                 <a href="mailto:ts23ov@gmail.com" class="btn btn-primary">Email Me</a>
                 <a href="https://github.com/tsachovadia" class="btn btn-ghost" target="_blank">GitHub</a>
                 <a href="https://www.linkedin.com/in/tsach-ovadia/" class="btn btn-ghost" target="_blank">LinkedIn</a>
@@ -603,5 +686,186 @@
             Tsach Ovadia &copy; 2025 &middot; Hod Hasharon, Israel
         </div>
     </footer>
+
+    <!-- AOS Library -->
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        // ── AOS init ──
+        AOS.init({
+            duration: 700,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 60
+        });
+
+        // ── Typing effect ──
+        (function() {
+            const el = document.getElementById('typed-name');
+            const cursor = document.getElementById('cursor');
+            const text = 'Tsach Ovadia';
+            let i = 0;
+            function type() {
+                if (i < text.length) {
+                    el.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 80 + Math.random() * 40);
+                } else {
+                    // Hide cursor after typing
+                    setTimeout(() => { cursor.style.display = 'none'; }, 2000);
+                }
+            }
+            setTimeout(type, 600);
+        })();
+
+        // ── Scroll progress bar ──
+        window.addEventListener('scroll', function() {
+            const scrollTop = document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const progress = (scrollTop / scrollHeight) * 100;
+            document.getElementById('scrollProgress').style.width = progress + '%';
+        });
+
+        // ── Count-up animation for stats ──
+        const statObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.getAttribute('data-count'));
+                    const suffix = el.getAttribute('data-suffix') || '';
+                    const duration = 1500;
+                    const start = Date.now();
+
+                    function update() {
+                        const elapsed = Date.now() - start;
+                        const progress = Math.min(elapsed / duration, 1);
+                        // Ease out cubic
+                        const eased = 1 - Math.pow(1 - progress, 3);
+                        const current = Math.round(eased * target);
+                        el.textContent = current + suffix;
+                        if (progress < 1) requestAnimationFrame(update);
+                    }
+                    update();
+                    statObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('[data-count]').forEach(function(el) {
+            statObserver.observe(el);
+        });
+
+        // ── Hero particle canvas ──
+        (function() {
+            const canvas = document.getElementById('hero-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let mouse = { x: null, y: null };
+
+            function resize() {
+                const section = canvas.parentElement;
+                canvas.width = section.offsetWidth;
+                canvas.height = section.offsetHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            canvas.parentElement.addEventListener('mousemove', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+            });
+
+            canvas.parentElement.addEventListener('mouseleave', function() {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            function createParticles() {
+                const count = Math.min(60, Math.floor(canvas.width / 15));
+                particles = [];
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.4,
+                        vy: (Math.random() - 0.5) * 0.4,
+                        r: Math.random() * 1.5 + 0.5,
+                        opacity: Math.random() * 0.3 + 0.1
+                    });
+                }
+            }
+            createParticles();
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(function(p, i) {
+                    // Move
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // Bounce
+                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                    // Draw particle
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(59, 130, 246, ' + p.opacity + ')';
+                    ctx.fill();
+
+                    // Connect nearby particles
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const p2 = particles[j];
+                        const dx = p.x - p2.x;
+                        const dy = p.y - p2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 120) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.strokeStyle = 'rgba(59, 130, 246, ' + (0.06 * (1 - dist / 120)) + ')';
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+
+                    // Mouse interaction — glow near cursor
+                    if (mouse.x !== null) {
+                        const dx = p.x - mouse.x;
+                        const dy = p.y - mouse.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 150) {
+                            ctx.beginPath();
+                            ctx.arc(p.x, p.y, p.r + 2, 0, Math.PI * 2);
+                            ctx.fillStyle = 'rgba(59, 130, 246, ' + (0.3 * (1 - dist / 150)) + ')';
+                            ctx.fill();
+                        }
+                    }
+                });
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+
+        // ── Active nav link on scroll ──
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('nav .links a');
+
+        window.addEventListener('scroll', function() {
+            let current = '';
+            sections.forEach(function(section) {
+                const top = section.offsetTop - 100;
+                if (scrollY >= top) current = section.getAttribute('id');
+            });
+            navLinks.forEach(function(link) {
+                link.style.color = '';
+                if (link.getAttribute('href') === '#' + current) {
+                    link.style.color = '#fafafa';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
